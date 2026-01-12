@@ -1,0 +1,15 @@
+ipykernel
+ipython
+matplotlib
+numpy
+pandas
+seaborn
+scikit-learn
+scipy
+ipywidgets
+tqdm
+pathlib
+
+# For accessing and reading AWS S3 files
+h5py
+s3fs
