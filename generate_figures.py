@@ -47,11 +47,11 @@ def get_metric_names_and_labels(y_metric, x_metric):
     if y_metric == 'pit_entropy':
         raw_y_col = 'raw_pit_entropy'
         cal_y_col = 'cal_pit_entropy'
-        y_label = 'PIT Entropy'
+        y_label = 'PIT entropy'
     elif y_metric == 'avg_coverage_gap':
         raw_y_col = 'raw_avg_coverage_gap'
         cal_y_col = 'cal_avg_coverage_gap'
-        y_label = 'Calibration Error'
+        y_label = 'Calibration error'
     else:
         raise ValueError(f"Unknown y_metric: {y_metric}")
     
@@ -59,11 +59,11 @@ def get_metric_names_and_labels(y_metric, x_metric):
     if x_metric == 'quantile_score':
         raw_x_col = 'raw_avg_quantile_score'
         cal_x_col = 'cal_avg_quantile_score'
-        x_label = 'Quantile Loss'
+        x_label = 'Quantile loss'
     elif x_metric == 'log_score':
         raw_x_col = 'raw_avg_log_score'
         cal_x_col = 'cal_avg_log_score'
-        x_label = 'Average Log Score'
+        x_label = 'Average log score'
     else:
         raise ValueError(f"Unknown x_metric: {x_metric}")
     
@@ -289,10 +289,10 @@ def create_calibration_plot(df, filter_col, filter_val, fig_folder, forecast_typ
             ax.plot(levels, coverage_values, alpha=alpha, linewidth=1, color=color)
     
     # Plot perfect calibration line
-    ax.plot([0, 1], [0, 1], 'k--', linewidth=2, label='Perfect Calibration')
+    ax.plot([0, 1], [0, 1], 'k--', linewidth=2)
     
-    ax.set_xlabel('Desired Coverage')
-    ax.set_ylabel('Actual Coverage')
+    ax.set_xlabel('Desired coverage')
+    ax.set_ylabel('Actual coverage')
     # ax.set_title(f'{filter_val}')
     # Set ticks 
     ax.set_xticks([0, .25, .5, .75, 1])
@@ -303,10 +303,10 @@ def create_calibration_plot(df, filter_col, filter_val, fig_folder, forecast_typ
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
 
-    if figsize == (2.2, 2.2):
-        ax.legend(fontsize=6, loc='upper left')
-    else:
-        ax.legend(fontsize=7, loc='upper left')
+    # if figsize == (2.2, 2.2):
+    #     ax.legend(fontsize=6, loc='upper left')
+    # else:
+    #     ax.legend(fontsize=7, loc='upper left')
 
     ax.grid(True, alpha=0.2)
 
