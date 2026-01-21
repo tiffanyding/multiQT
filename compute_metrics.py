@@ -81,9 +81,12 @@ def PIT_score(Y, values, levels):
     values = np.asarray(values, dtype=float)
     if levels.ndim != 1 or values.ndim != 1 or len(levels) != len(values):
         raise ValueError("levels and values must be 1D arrays of the same length")
+    if not np.all(np.isfinite(values)):
+        raise ValueError("values must be finite")
     if not np.all(np.diff(levels) > 0):
         raise ValueError("levels must be strictly increasing")
     if not np.all(np.diff(values) >= 0):
+        pdb.set_trace()
         raise ValueError("values must be nondecreasing (ties allowed)")
 
     Y = np.asarray(Y, dtype=float)
@@ -365,11 +368,13 @@ def compute_covid_metrics():
     # Calculate total number of combinations for progress tracking
     total_combinations = len(good_forecasters) * len(states) * 4  # 4 horizons
     current_count = 0
-    
+
+
     for forecaster in good_forecasters:
         print(f"Processing forecaster: {forecaster}")
         for state in states:
             for horizon in [1, 2, 3, 4]:
+
                 current_count += 1
                 print(f"  [{current_count}/{total_combinations}] {forecaster}_{state}_h={horizon}")
                 
@@ -390,6 +395,34 @@ def compute_covid_metrics():
                 else:
                     print(f"Warning: No calibrated forecasts found for {forecaster}_{state}_h={horizon}")
                     continue
+
+                # ADDED
+                if np.any(np.isinf(Yhat_cal)):
+                    print('Forecast contains infinite values,', 
+                          'replacing -inf with min(smallest observed Y_t in last 100 time steps, smallest finite current quantile forecast)',
+                          'and +inf with max(largest observed Y_t in last 100 time steps, largest finite current quantile forecast)')
+                    
+                    # Replace +inf with max observed Y in last 100 time steps
+                    m, T = np.shape(Yhat_cal)
+                    for t in range(T):
+                        if np.isinf(Yhat_cal[:,t]).any():
+                            max_Y = np.max(Y[max(0, t-100):t+1])
+                            min_Y = np.min(Y[max(0, t-100):t+1])
+                            smallest_finite = np.min(Yhat_cal[np.isfinite(Yhat_cal[:,t]), t])
+                            largest_finite = np.max(Yhat_cal[np.isfinite(Yhat_cal[:,t]), t])
+                            Yhat_cal[:,t] = np.where(Yhat_cal[:,t] == float('-inf'), min(min_Y, smallest_finite), Yhat_cal[:,t])
+                            Yhat_cal[:,t] = np.where(Yhat_cal[:,t] == float('inf'), max(max_Y, largest_finite), Yhat_cal[:,t])
+
+                    # pdb.set_trace()
+                    
+                    # assert that forecasts are still ordered
+                    for t in range(T):
+                        if not np.all(np.diff(Yhat_cal[:,t]) >= 0):
+                            print("Error: Forecast quantiles are not ordered after replacing inf values.")
+                            pdb.set_trace()
+                        # assert np.all(np.diff(Yhat_cal[:,t]) >= 0), "Error: Forecast quantiles are not ordered after replacing inf values."
+
+                    
                 
                 # Basic info
                 num_time_steps = len(Y)
@@ -397,7 +430,7 @@ def compute_covid_metrics():
                 # Compute metrics for raw forecasts
                 raw_coverages = compute_all_coverages(Y, Yhat_raw, covid_levels)
                 raw_avg_gap = compute_average_coverage_gap(Y, Yhat_raw, covid_levels)
-                raw_pit_entropy = compute_entropy_of_PIT_scores(Y, Yhat_raw, covid_levels)
+                raw_pit_entropy = compute_entropy_of_PIT_scores(Y, Yhat_raw, covid_levels) 
                 raw_quantile_score = compute_avg_quantile_score(Y, Yhat_raw, covid_levels)
                 raw_log_score = compute_avg_log_score(Y, Yhat_raw, covid_levels)
                 
@@ -416,7 +449,7 @@ def compute_covid_metrics():
                     'num_time_steps': num_time_steps,
                     'raw_avg_coverage_gap': raw_avg_gap,
                     'cal_avg_coverage_gap': cal_avg_gap,
-                    'raw_pit_entropy': raw_pit_entropy,
+                    'raw_pit_entropy': raw_pit_entropy, 
                     'cal_pit_entropy': cal_pit_entropy,
                     'raw_avg_quantile_score': raw_quantile_score,
                     'cal_avg_quantile_score': cal_quantile_score,

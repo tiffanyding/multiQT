@@ -384,7 +384,7 @@ def create_covid_figures(fig_folder):
         
         # Generate plots for both y-metrics
         for x_metric in ['quantile_score', 'log_score']:
-            for y_metric in ['pit_entropy', 'avg_coverage_gap']:
+            for y_metric in ['avg_coverage_gap', 'pit_entropy']:
                 print(f"    Y-metric: {y_metric}")
                 
                 # 1. Arrow plot with averaging across states
@@ -403,7 +403,7 @@ def create_covid_figures(fig_folder):
 
     # Also create version of #1 with all horizons as subplots for both metrics
     for x_metric in ['quantile_score', 'log_score']:
-        for y_metric in ['pit_entropy', 'avg_coverage_gap']:
+        for y_metric in ['avg_coverage_gap', 'pit_entropy']:
             if x_metric == 'log_score' and y_metric == 'avg_coverage_gap':
                 continue  # skip 
 

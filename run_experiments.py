@@ -6,6 +6,7 @@ import time
 import pdb
 
 from utils import MultiQT, QT
+from multiqt_adapt import MQ_adapt 
 
 
 def run_experiment(args):
@@ -23,9 +24,14 @@ def run_experiment(args):
         total_experiments = len(good_forecasters) * len(states) * len(horizons)
         experiment_count = 0
 
-        for forecaster in good_forecasters:
-            for state in states:
-                for horizon in horizons:
+        # TEMP
+        for forecaster in ['COVIDhub-baseline']:
+            for state in ['me']:
+                for horizon in [4]:
+
+        # for forecaster in good_forecasters:
+        #     for state in states:
+        #         for horizon in horizons:
 
                     experiment_count += 1
                     print(f"Experiment {experiment_count}/{total_experiments}: {forecaster=}, {state=}, {horizon=}")
@@ -50,7 +56,11 @@ def run_experiment(args):
                     if args.method == 'QT':
                         Y_forecast = QT(Y, levels, Yhat=Yhat, lr='adaptive+', lr_window=args.lr_window, q0=args.q0, delay=delay)
                     else:
-                        Y_forecast = MultiQT(Y, levels, Yhat=Yhat, lr='adaptive+', lr_window=args.lr_window, q0=args.q0, delay=delay)
+                        # Y_forecast = MultiQT(Y, levels, Yhat=Yhat, lr='adaptive+', lr_window=args.lr_window, q0=args.q0, delay=delay)
+
+                        # REPLACED WITH ISAAC'S METHOD
+                        Y_forecast = MQ_adapt(Y,levels,Yhat.T)
+                        Y_forecast = Y_forecast.T
 
                     # Save results
                     np.save(save_path, Y_forecast)
@@ -98,8 +108,12 @@ def run_experiment(args):
                         Y_forecast = QT(Y, levels, Yhat=Yhat, lr='adaptive+', lr_window=args.lr_window, 
                                         q0=args.q0, delay=delay)
                     else:
-                        Y_forecast = MultiQT(Y, levels, Yhat=Yhat, lr='adaptive+', 
-                                        lr_window=args.lr_window, q0=args.q0, delay=delay)
+                        # Y_forecast = MultiQT(Y, levels, Yhat=Yhat, lr='adaptive+', 
+                        #                 lr_window=args.lr_window, q0=args.q0, delay=delay)
+
+                        # REPLACED WITH ISAAC'S METHOD
+                        Y_forecast = MQ_adapt(Y,levels,Yhat.T)
+                        Y_forecast = Y_forecast.T
 
                     # Save results
                     np.save(save_path, Y_forecast)
