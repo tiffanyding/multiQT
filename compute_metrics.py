@@ -353,6 +353,35 @@ def compute_average_coverage_gap(Y, forecasts, levels):
 #                           Main Functions
 # ----------------------------------------------------------------
 
+# Helper function
+def replace_inf_values(Yhat_cal, Y, k=30):
+    if np.any(np.isinf(Yhat_cal)):
+        print('Forecast contains infinite values,', 
+                'replacing -inf with min(smallest observed Y_t in last k time steps, smallest finite current quantile forecast)',
+                'and +inf with max(largest observed Y_t in last k time steps, largest finite current quantile forecast)')
+        
+        # Replace +inf with max observed Y in last k time steps
+        m, T = np.shape(Yhat_cal)
+        for t in range(T):
+            if np.isinf(Yhat_cal[:,t]).any():
+                max_Y = np.max(Y[max(0, t-k):t+1])
+                min_Y = np.min(Y[max(0, t-k):t+1])
+                smallest_finite = np.min(Yhat_cal[np.isfinite(Yhat_cal[:,t]), t])
+                largest_finite = np.max(Yhat_cal[np.isfinite(Yhat_cal[:,t]), t])
+                Yhat_cal[:,t] = np.where(Yhat_cal[:,t] == float('-inf'), min(min_Y, smallest_finite), Yhat_cal[:,t])
+                Yhat_cal[:,t] = np.where(Yhat_cal[:,t] == float('inf'), max(max_Y, largest_finite), Yhat_cal[:,t])
+
+        # pdb.set_trace()
+        
+        # assert that forecasts are still ordered
+        for t in range(T):
+            if not np.all(np.diff(Yhat_cal[:,t]) >= 0):
+                print("Error: Forecast quantiles are not ordered after replacing inf values.")
+                pdb.set_trace()
+            # assert np.all(np.diff(Yhat_cal[:,t]) >= 0), "Error: Forecast quantiles are not ordered after replacing inf values."
+
+    return Yhat_cal
+
 def compute_covid_metrics():
     """
     Compute metrics for COVID data and save to CSV.
@@ -396,32 +425,7 @@ def compute_covid_metrics():
                     print(f"Warning: No calibrated forecasts found for {forecaster}_{state}_h={horizon}")
                     continue
 
-                # ADDED
-                if np.any(np.isinf(Yhat_cal)):
-                    print('Forecast contains infinite values,', 
-                          'replacing -inf with min(smallest observed Y_t in last 100 time steps, smallest finite current quantile forecast)',
-                          'and +inf with max(largest observed Y_t in last 100 time steps, largest finite current quantile forecast)')
-                    
-                    # Replace +inf with max observed Y in last 100 time steps
-                    m, T = np.shape(Yhat_cal)
-                    for t in range(T):
-                        if np.isinf(Yhat_cal[:,t]).any():
-                            max_Y = np.max(Y[max(0, t-100):t+1])
-                            min_Y = np.min(Y[max(0, t-100):t+1])
-                            smallest_finite = np.min(Yhat_cal[np.isfinite(Yhat_cal[:,t]), t])
-                            largest_finite = np.max(Yhat_cal[np.isfinite(Yhat_cal[:,t]), t])
-                            Yhat_cal[:,t] = np.where(Yhat_cal[:,t] == float('-inf'), min(min_Y, smallest_finite), Yhat_cal[:,t])
-                            Yhat_cal[:,t] = np.where(Yhat_cal[:,t] == float('inf'), max(max_Y, largest_finite), Yhat_cal[:,t])
-
-                    # pdb.set_trace()
-                    
-                    # assert that forecasts are still ordered
-                    for t in range(T):
-                        if not np.all(np.diff(Yhat_cal[:,t]) >= 0):
-                            print("Error: Forecast quantiles are not ordered after replacing inf values.")
-                            pdb.set_trace()
-                        # assert np.all(np.diff(Yhat_cal[:,t]) >= 0), "Error: Forecast quantiles are not ordered after replacing inf values."
-
+                Yhat_cal = replace_inf_values(Yhat_cal, Y)
                     
                 
                 # Basic info

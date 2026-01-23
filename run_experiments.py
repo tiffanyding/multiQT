@@ -24,14 +24,9 @@ def run_experiment(args):
         total_experiments = len(good_forecasters) * len(states) * len(horizons)
         experiment_count = 0
 
-        # TEMP
-        for forecaster in ['COVIDhub-baseline']:
-            for state in ['me']:
-                for horizon in [4]:
-
-        # for forecaster in good_forecasters:
-        #     for state in states:
-        #         for horizon in horizons:
+        for forecaster in good_forecasters:
+            for state in states:
+                for horizon in horizons:
 
                     experiment_count += 1
                     print(f"Experiment {experiment_count}/{total_experiments}: {forecaster=}, {state=}, {horizon=}")
