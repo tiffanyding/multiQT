@@ -40,6 +40,7 @@ def get_mean_and_sd(Y, Yhat, t):
     # sd = 4*np.mean(np.abs(np.diff(Y[max(0,t-100):t]))) if t > 1 else 1.0
 
     sd = 1.5*np.quantile(np.abs(np.diff(Y[max(0,t-30):t])), 0.9) if t > 1 else 1.0
+    sd = max(sd, 1.0)  # ensure sd is at least 1.0 to avoid extremely small values
     return mean, sd
 
 ### Compute F^{-1}(tau) from the cdf F given by the quantiles in qs and the levels in levels.
@@ -130,7 +131,6 @@ def MQ_adapt(Y,levels,b,w=200,gammas=np.array([0.001,0.002,0.004,0.008,0.0160,0.
             iso.fit(levels, expert_alphas_hidden[i,:])
             expert_alphas_played[i,:] = iso.predict(levels)
 
-        
         chosen_expert = np.random.choice(np.arange(0, m), size=1, p=expert_weights)[0]
         predicted_levels[t,:] = expert_alphas_played[chosen_expert,:]
         realized_coverages[t,:] = (betas[t,:] <= predicted_levels[t,:])
