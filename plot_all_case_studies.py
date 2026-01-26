@@ -213,49 +213,49 @@ def plot_energy_sample_sites(ISO='ERCOT', target_variable='Wind', hour=16, n_sit
             save_path=f'{fig_prefix_local}/{target_variable}_hour={hour}_{n_sites}SAMPLES_plots.pdf'
         )
        
+# # PLOT ALL CASE STUDIES FOR COVID
+# if __name__ == "__main__":
 
-if __name__ == "__main__":
+#     from covid_utils import states
 
-    from covid_utils import states
+#     ## 1) COVID
+#     dataset = 'covid'
 
-    ## 1) COVID
-    dataset = 'covid'
-
-    for state in states:
-        for horizon in [1, 2,3, 4]:
+#     for state in states:
+#         for horizon in [1, 2,3, 4]:
             
-            # Make fig folder
-            fig_prefix = f'{fig_folder}/{dataset}/{state}_h={horizon}'
-            os.makedirs(fig_prefix, exist_ok=True)
+#             # Make fig folder
+#             fig_prefix = f'{fig_folder}/{dataset}/{state}_h={horizon}'
+#             os.makedirs(fig_prefix, exist_ok=True)
 
-            plot_covid_case_studies(state, horizon)
-            print(f'Done plotting all COVID case studies for {state} with horizon {horizon}.')
+#             plot_covid_case_studies(state, horizon)
+#             print(f'Done plotting all COVID case studies for {state} with horizon {horizon}.')
 
 
 # ORIGINAL
-# if __name__ == "__main__":
+if __name__ == "__main__":
 
-#     ## 1) COVID
-#     # ------- COVID plot settings -------
-#     states = ['ca', 'vt']
-#     horizon = 1
-#     # -----------------------------------
+    ## 1) COVID
+    # ------- COVID plot settings -------
+    states = ['ca', 'vt']
+    horizon = 1
+    # -----------------------------------
 
-#     for state in states:
+    for state in states:
 
-#         dataset = 'covid'
-#         # Make fig folder
-#         fig_prefix = f'{fig_folder}/{dataset}/{state}_h={horizon}'
-#         os.makedirs(fig_prefix, exist_ok=True)
+        dataset = 'covid'
+        # Make fig folder
+        fig_prefix = f'{fig_folder}/{dataset}/{state}_h={horizon}'
+        os.makedirs(fig_prefix, exist_ok=True)
 
-#         plot_covid_case_studies(state, horizon)
-#         print(f'Done plotting all COVID case studies for {state} with horizon {horizon}.')
+        plot_covid_case_studies(state, horizon)
+        print(f'Done plotting all COVID case studies for {state} with horizon {horizon}.')
 
-    # ## 2) Energy
-    # # Run sampling & plotting for ERCOT Wind and Solar (8 sites each)
-    # print('Sampling 8 sites for ERCOT Wind and Solar and creating plots...')
-    # plot_energy_sample_sites(ISO='ERCOT', target_variable='Wind', hour=16, n_sites=8, seed=2)
-    # plot_energy_sample_sites(ISO='ERCOT', target_variable='Solar', hour=16, n_sites=8, seed=0)
-    # print(f'Done with energy forecast plotting for random sample.')
+    ## 2) Energy
+    # Run sampling & plotting for ERCOT Wind and Solar (8 sites each)
+    print('Sampling 8 sites for ERCOT Wind and Solar and creating plots...')
+    plot_energy_sample_sites(ISO='ERCOT', target_variable='Wind', hour=16, n_sites=8, seed=2)
+    plot_energy_sample_sites(ISO='ERCOT', target_variable='Solar', hour=16, n_sites=8, seed=0)
+    print(f'Done with energy forecast plotting for random sample.')
 
 

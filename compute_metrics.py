@@ -425,7 +425,7 @@ def compute_covid_metrics():
                     print(f"Warning: No calibrated forecasts found for {forecaster}_{state}_h={horizon}")
                     continue
 
-                Yhat_cal = replace_inf_values(Yhat_cal, Y)
+                Yhat_cal = replace_inf_values(Yhat_cal, Y) # Replace infinite values with recent max Y_t
                     
                 
                 # Basic info
@@ -522,6 +522,8 @@ def compute_energy_metrics(cache_folder='cache/energy/', save_to='energy_metrics
                         # Load calibrated forecasts  
                         cache_path = f"{cache_folder}/{ISO}_{site}_{target_var}_Yhat=quantile-specific_hour={hour}.npy"
                         Yhat_cal = np.load(cache_path)
+
+                        Yhat_cal = replace_inf_values(Yhat_cal, Y) # Replace infinite values with recent max Y_t
                         
                         # Basic info
                         num_time_steps = len(Y)
