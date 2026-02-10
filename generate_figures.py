@@ -94,7 +94,7 @@ def create_covid_arrow_plot_averaged(df, horizon, fig_folder, alpha=0.8,
     forecaster_metrics = horizon_data.groupby('forecaster').agg(agg_dict).reset_index()
     
     if ax is None:
-        fig, ax = plt.subplots(figsize=(5, 4))
+        fig, ax = plt.subplots(figsize=(4, 3))
     n_forecasters = len(forecaster_metrics)
     colors = plt.cm.tab20(np.linspace(0, 0.9, n_forecasters)) # can also replace tab20 with hsv
     
