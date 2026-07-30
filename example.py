@@ -79,7 +79,7 @@ def multiQT(Y, levels, base_forecasts=None, lr='adaptive+', lr_window=50, init=0
                 for s in delay[t]:
                     assert s <= t, "delay[t] should contain time indices <= t"
                     for i, alpha in enumerate(levels):
-                        theta_tilde[i,t+1] -= eta * ((Y[t] <= q[i,t]) - alpha) 
+                        theta_tilde[i,t+1] -= eta * ((Y[s] <= q[i,s]) - alpha) 
 
     ## Return forecasts
     return q
@@ -89,7 +89,8 @@ if __name__ == "__main__":
 
     ## Example usage
     
-    levels = [0.1, 0.25, 0.5, 0.75, 0.9] # Quantile levels to track
+    # Quantile levels to track
+    levels = [0.1, 0.25, 0.5, 0.75, 0.9] 
     
     # Generated simulated Y's: sine wave plus noise
     T = 100
