@@ -130,7 +130,7 @@ def create_covid_arrow_plot_averaged(df, horizon, fig_folder, alpha=0.8,
     else:  # avg_coverage_gap
         ax.autoscale_view()
 
-    ax.set_title(f'$h$={horizon}', fontsize=14)
+    ax.set_title(f'$h$={horizon}', fontsize=14) 
     ax.grid(True, alpha=0.3)
     # ax.legend(bbox_to_anchor=(1.05, 1), loc='upper left', fontsize=10)
     # ax.legend(fontsize=8)

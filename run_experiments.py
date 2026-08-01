@@ -77,7 +77,7 @@ def run_experiment(args):
                     print(f"Experiment {experiment_count}/{total_experiments}: {ISO=}, {site=}, {target_variable=}, {hour=}")
                     save_path = f"{cache_folder}/{ISO}_{site}_{target_variable}_Yhat={Yhat_type}_hour={hour}.npy"
                     # Check if the file already exists
-                    if os.path.exists(save_path):
+                    if not args.override_saved and os.path.exists(save_path):
                         print(f"   --> Skipping, already exists: {save_path}")
                         continue
 

@@ -54,16 +54,17 @@ def get_lr(lr, S=None, level=None, lr_window=None):
         - lr_window: int, window size for choosing adaptive learning rate. Only needed if lr is 
             'adaptive' or 'adaptive+'
     '''
+    T = S.shape[1]
     
     # If lr is a positive number, use it as a constant learning rate
     if isinstance(lr, (int, float)) and lr > 0:
         return lr
     elif lr == 'adaptive':   
         # Rule from "Conformal PID Control", Section 2.1
-        lr = 0.1 * np.max(np.abs(S[max(0,len(S)-lr_window):]))
+        lr = 0.1 * np.max(np.abs(S[:, max(0,T-lr_window):]))
     elif lr == 'adaptive+': 
         # replace max with 90% quantile to be more robust to outliers
-        lr = 0.1 * np.quantile(np.abs(S[max(0,len(S)-lr_window):]), 0.9)
+        lr = 0.1 * np.quantile(np.abs(S[:, max(0,T-lr_window):]), 0.9)
         # To ensure that the learning rate is not 0 (at least 0.1)
         lr = max(lr, 0.1) 
     else:
@@ -106,7 +107,7 @@ def apply_projection(v, levels, projection):
     else:
         raise ValueError("Invalid projection.")
 
-def projectedQT(Y, levels, Yhat=None, lr='adaptive++', projection='isotonic', eval_grad_at='played',
+def projectedQT(Y, levels, Yhat=None, lr='adaptive+', projection='isotonic', eval_grad_at='played',
                 delay=None, lr_window=50, q0=0, return_extra_info=False):
     '''
     Run projected Quantile Tracker for multi-quantile level, which is a meta-algorithm that
@@ -144,8 +145,8 @@ def projectedQT(Y, levels, Yhat=None, lr='adaptive++', projection='isotonic', ev
     gradients = np.zeros(hidden.shape) # Store (negative) gradients 
 
     # Initialize played and hidden sequences
-    hidden[0,:] = q0
-    played[0,:] = q0
+    hidden[:, 0] = q0
+    played[:, 0] = apply_projection(hidden[:,0] + Yhat[:,0], levels, projection)
 
     observed_idx = [] # keep track of observed indices
 
@@ -170,13 +171,15 @@ def projectedQT(Y, levels, Yhat=None, lr='adaptive++', projection='isotonic', ev
                
                 # Get learning rate
                 if len(observed_idx) > 0:
-                    lrs[i,t] = get_lr(lr, S[i,observed_idx], tau, lr_window)
+                    
                     if lr == 'adaptive+':
                         # Use the same lr for all levels
                         if i == 0: # Pass in past residuals from *all* levels. We will then take the 90% quantile inside get_lr
                             lrs[i,t] = get_lr(lr, S[:,observed_idx], tau, lr_window)
                         else:
                             lrs[i,t] = lrs[0,t]
+                    else:
+                        lrs[i,t] = get_lr(lr, S[i,observed_idx], tau, lr_window)
 
                 # Apply gradient step for each revealed Y value
                 for s in delay[t]:
@@ -212,7 +215,7 @@ def QT(Y, levels, Yhat, lr, lr_window=50, q0=0, delay=None, return_extra_info=Fa
                         delay=delay, lr_window=lr_window, q0=q0, return_extra_info=return_extra_info)
 
 
-def MultiQT(Y, levels, Yhat=None, lr='adaptive++', lr_window=50, q0=0, delay=None, return_extra_info=False):
+def MultiQT(Y, levels, Yhat=None, lr='adaptive', lr_window=50, q0=0, delay=None, return_extra_info=False):
     '''
     Run Multi-Level Quantile Tracker.
     
